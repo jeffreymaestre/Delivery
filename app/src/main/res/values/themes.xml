@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.AppDelivery" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
+    <style name="Theme.AppDelivery" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <item name="colorPrimary">@color/green</item>
+    <item name="colorAccent">@color/green_accent</item>
+        <item name="colorSecondary">@color/gray_light</item>
+        <item name="colorSecondaryVariant">@color/gray</item>
+    </style>
 </resources>

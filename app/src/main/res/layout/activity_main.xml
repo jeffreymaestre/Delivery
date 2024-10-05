@@ -8,6 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Login"
+        android:fontFamily="@font/indigo_daisy"
         android:textSize="50sp"
         android:layout_marginTop="60dp"
         android:layout_marginLeft="25dp" />
@@ -16,10 +17,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Ingresa con tu correo y contraseña"
+        android:fontFamily="@font/roboto_regular"
         android:layout_marginLeft="25dp"
         android:layout_marginTop="5dp" />
 
     <EditText
+        android:id="@+id/edit_text_email"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="Email"
@@ -27,9 +30,12 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="50dp"
         android:inputType="textEmailAddress"
-        android:textSize="15sp" />
+        android:textSize="15sp"
+        android:padding="15dp"
+        android:background="@drawable/edit_text_custom"/>
 
     <EditText
+        android:id="@+id/edit_text_password"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="Password"
@@ -37,7 +43,9 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="10dp"
         android:inputType="textPassword"
-        android:textSize="15sp" />
+        android:textSize="15sp"
+        android:padding="15dp"
+        android:background="@drawable/edit_text_custom"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,16 +56,18 @@
         >
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/btn_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="INICIAR SESION"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="200dp"
-            android:backgroundTint="@color/green"/>
+            android:backgroundTint="@color/green"
+            android:background="@drawable/rounted_button"/>
 
         <ImageView
+            android:id="@+id/imageview_go_to_register"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/ic_arrow_right"
