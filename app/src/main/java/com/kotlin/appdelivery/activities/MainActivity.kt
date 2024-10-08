@@ -9,13 +9,23 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
 import com.kotlin.appdelivery.R
+import com.kotlin.appdelivery.activities.client.home.ClientHomeActivity
+import com.kotlin.appdelivery.models.ResponseHttp
+import com.kotlin.appdelivery.models.User
+import com.kotlin.appdelivery.providers.UsersProviders
+import com.kotlin.appdelivery.utils.SharePref
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     var imageViewGoToRegiser: ImageView ? = null
     var editTextEmail : EditText ? = null
     var editTextPassword : EditText ? = null
     var buttonLogin : Button  ? = null
+    var usersProviders = UsersProviders()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)  // Cargar el layout XML
@@ -27,6 +37,8 @@ class MainActivity : AppCompatActivity() {
 
         imageViewGoToRegiser?.setOnClickListener { goToRegister() }
         buttonLogin?.setOnClickListener { login() }
+
+        getUserFromSession()
     }
 
     private fun login(){
@@ -34,7 +46,26 @@ class MainActivity : AppCompatActivity() {
         val password = editTextPassword?.text.toString()
 
         if (isValidForm(email,password)){
-            Toast.makeText(this, "El formulario es valido", Toast.LENGTH_LONG).show()
+            usersProviders.login(email, password)?.enqueue(object : Callback<ResponseHttp>{
+                override fun onResponse(
+                    call: Call<ResponseHttp>,
+                    response: Response<ResponseHttp>
+                ) {
+                    Log.d("MainActivity", "Response: ${response.body()}")
+                    if (response.body()?.isSuccess == true){
+                        Toast.makeText(this@MainActivity, response.body()?.message, Toast.LENGTH_LONG).show()
+                        saveUserInSession(response.body()?.data.toString())
+                    }else {
+                        Toast.makeText(this@MainActivity, "Los datos no son correctos", Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
+                    Log.d("MainActivity", "Hubo un error ${t.message}")
+                    Toast.makeText(this@MainActivity, "Hubo un error ${t.message}", Toast.LENGTH_LONG).show()
+                }
+
+            })
         }else{
             Toast.makeText(this, "El formulario no es valido", Toast.LENGTH_LONG).show()
         }
@@ -43,8 +74,42 @@ class MainActivity : AppCompatActivity() {
         Log.d("MainActivity", "El password es: $password")
     }
 
+    private fun goToClientHome(){
+        val i = Intent(this, ClientHomeActivity::class.java)
+        startActivity(i)
+    }
+
+    private fun goToSelectRol(){
+        val i = Intent(this, SelectRolesActivity::class.java)
+        startActivity(i)
+    }
+
+    private fun saveUserInSession(data: String){
+        val sharedPref = SharePref(this)
+        val gson = Gson()
+        val user = gson.fromJson(data, User::class.java)
+        sharedPref.save("user", user)
+
+        if (user.roles?.size!! > 1){
+                goToSelectRol()
+        }else {
+            goToClientHome()
+        }
+    }
+
     fun String.isEmailValid(): Boolean{
         return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
+    }
+
+    private fun getUserFromSession(){
+        val sharedPerf = SharePref(this)
+        val gson = Gson()
+
+        if (!sharedPerf.getData("user").isNullOrBlank()){
+            // VALIDO SI EL USUARIO EXISTE EN SESION
+            val user = gson.fromJson(sharedPerf.getData("user"), User::class.java)
+            goToClientHome()
+        }
     }
 
     private fun isValidForm(email: String, password: String) : Boolean {

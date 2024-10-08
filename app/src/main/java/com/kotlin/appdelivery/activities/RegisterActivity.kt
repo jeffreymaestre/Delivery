@@ -12,7 +12,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.gson.Gson
 import com.kotlin.appdelivery.R
+import com.kotlin.appdelivery.activities.client.home.ClientHomeActivity
+import com.kotlin.appdelivery.models.ResponseHttp
+import com.kotlin.appdelivery.models.User
+import com.kotlin.appdelivery.providers.UsersProviders
+import com.kotlin.appdelivery.utils.SharePref
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class RegisterActivity : AppCompatActivity() {
     val TAG = "RegisterActivity"
@@ -25,6 +34,8 @@ class RegisterActivity : AppCompatActivity() {
     var editTextPassword : EditText? = null
     var editTextConfirmPassword : EditText? = null
     var buttonRegister : Button? = null
+
+    var usersProviders = UsersProviders()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,15 +69,47 @@ class RegisterActivity : AppCompatActivity() {
         val confirm_password = editTextConfirmPassword?.text.toString()
 
         if (isValidForm(name, lastname, email, phone, password, confirm_password)){
-            Toast.makeText(this, "El formulario es valido", Toast.LENGTH_SHORT).show()
-        }
+            val user = User(
+                name = name,
+                lastname = lastname,
+                email = email,
+                phone = phone,
+                pasword = password
+            )
+            usersProviders.register(user)?.enqueue(object: Callback<ResponseHttp>{
+                override fun onResponse(
+                    call: Call<ResponseHttp>,
+                    response: Response<ResponseHttp>
+                ) {
+                    if (response.body()?.isSuccess == true){
+                        saveUserInSession(response.body()?.data.toString())
+                        goToClientHome()
+                    }
 
-        Log.d(TAG, "El nombre es: $name")
-        Log.d(TAG, "El apellido es: $lastname")
-        Log.d(TAG, "El email es: $email")
-        Log.d(TAG, "El phone es: $phone")
-        Log.d(TAG, "El password es: $password")
-        Log.d(TAG, "El confirm_password es: $confirm_password")
+                    Toast.makeText(this@RegisterActivity, response.body()?.message, Toast.LENGTH_LONG).show()
+                    Log.d(TAG, "Response: ${response}")
+                    Log.d(TAG, "Body: ${response.body()}")
+                }
+
+                override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
+                    Log.d(TAG, "Se produjo un error ${t.message}")
+                    Toast.makeText(this@RegisterActivity, "Se produjo un error ${t.message}", Toast.LENGTH_LONG).show()
+                }
+
+            })
+        }
+    }
+
+    private fun goToClientHome(){
+        val i = Intent(this, ClientHomeActivity::class.java)
+        startActivity(i)
+    }
+
+    private fun saveUserInSession(data: String){
+        val sharedPref = SharePref(this)
+        val gson = Gson()
+        val user = gson.fromJson(data, User::class.java)
+        sharedPref.save("user", user)
     }
 
     fun String.isEmailValid(): Boolean{
