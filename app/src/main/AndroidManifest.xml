@@ -2,8 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage"/>
 
     <application
         android:allowBackup="true"
@@ -12,6 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppDelivery"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".activities.SaveImageActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".activities.delivery.home.DeliveryHomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.restaurant.home.RestaurantHomeActivity"
+            android:exported="false" />
         <activity
             android:name=".activities.SelectRolesActivity"
             android:exported="false" />
@@ -29,6 +47,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
     </application>
 

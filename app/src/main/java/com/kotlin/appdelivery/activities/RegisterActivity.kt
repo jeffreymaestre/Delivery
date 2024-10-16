@@ -1,6 +1,8 @@
 package com.kotlin.appdelivery.activities
 
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -74,18 +76,22 @@ class RegisterActivity : AppCompatActivity() {
                 lastname = lastname,
                 email = email,
                 phone = phone,
-                pasword = password
+                password = password
             )
             usersProviders.register(user)?.enqueue(object: Callback<ResponseHttp>{
                 override fun onResponse(
                     call: Call<ResponseHttp>,
                     response: Response<ResponseHttp>
                 ) {
+                    Log.d(TAG, "ANTES DEL IF")
                     if (response.body()?.isSuccess == true){
+                        Log.d(TAG, "DENTRO DEL IF")
+                        Log.d(TAG, "AQUIIIII: ${response.body()?.data}")
+                        Log.d(TAG, "TO STRING: ${response.body()?.data.toString()}")
                         saveUserInSession(response.body()?.data.toString())
                         goToClientHome()
                     }
-
+                    Log.d(TAG, "FUERA DEL IF")
                     Toast.makeText(this@RegisterActivity, response.body()?.message, Toast.LENGTH_LONG).show()
                     Log.d(TAG, "Response: ${response}")
                     Log.d(TAG, "Body: ${response.body()}")
@@ -101,7 +107,8 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun goToClientHome(){
-        val i = Intent(this, ClientHomeActivity::class.java)
+        val i = Intent(this, SaveImageActivity::class.java)
+        i.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK // eliminar historial de pantallas
         startActivity(i)
     }
 

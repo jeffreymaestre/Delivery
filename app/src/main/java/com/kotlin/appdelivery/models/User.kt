@@ -1,5 +1,6 @@
 package com.kotlin.appdelivery.models
 
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 
 class User(
@@ -8,13 +9,19 @@ class User(
     @SerializedName("lastname") val lastname: String,
     @SerializedName("email") val email: String,
     @SerializedName("phone") val phone: String,
-    @SerializedName("password") val pasword: String,
+    @SerializedName("password") val password: String,
     @SerializedName("image") val image: String? = null,
     @SerializedName("session_token") val sessionToken: String? = null,
     @SerializedName("is_available") val isAvailable: Boolean? = null,
     @SerializedName("roles") val roles: ArrayList<Rol>? = null
 ) {
+
+
+    fun toJson(): String {
+        return Gson().toJson(this)
+    }
+
     override fun toString(): String {
-        return "User(id=$id, name='$name', lastname='$lastname', email='$email', phone='$phone', pasword='$pasword', image=$image, sessionToken=$sessionToken, isAvailable=$isAvailable, roles=$roles)"
+        return "User(id=$id, name='$name', lastname='$lastname', email='$email', phone='$phone', password='$password', image=$image, sessionToken=$sessionToken, isAvailable=$isAvailable, roles=$roles)"
     }
 }

@@ -1,4 +1,4 @@
-package com.kotlin.appdelivery.activities.client.home
+package com.kotlin.appdelivery.activities.delivery.home
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,11 +16,15 @@ import com.kotlin.appdelivery.activities.MainActivity
 import com.kotlin.appdelivery.fragments.client.ClientOrdersFragment
 import com.kotlin.appdelivery.fragments.client.ClienteCategoriesFragment
 import com.kotlin.appdelivery.fragments.client.ClienteProfileFragment
+import com.kotlin.appdelivery.fragments.delivery.DeliveryOrdersFragment
+import com.kotlin.appdelivery.fragments.restaurant.RestaurantCategoryFragment
+import com.kotlin.appdelivery.fragments.restaurant.RestaurantOrdersFragment
+import com.kotlin.appdelivery.fragments.restaurant.RestaurantProductFragment
 import com.kotlin.appdelivery.models.User
 import com.kotlin.appdelivery.utils.SharePref
 
-class ClientHomeActivity : AppCompatActivity() {
-    private val TAG = "ClientHomeActivity"
+class DeliveryHomeActivity : AppCompatActivity() {
+    private val TAG = "DeliverytHomeActivity"
     //var butonLogout: Button? = null
     var sharedPerf:  SharePref? = null
 
@@ -29,7 +33,7 @@ class ClientHomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_client_home)
+        setContentView(R.layout.activity_delivery_home)
         sharedPerf = SharePref(this)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -39,17 +43,13 @@ class ClientHomeActivity : AppCompatActivity() {
         //butonLogout = findViewById(R.id.btn_logout)
         //butonLogout?.setOnClickListener{ logout() }
 
-        openFragment(ClienteCategoriesFragment())
+        openFragment(DeliveryOrdersFragment())
 
         bottonNavegation = findViewById(R.id.bottom_navegation)
         bottonNavegation?.setOnItemSelectedListener {
             when(it.itemId){
-                R.id.item_home -> {
-                    openFragment(ClienteCategoriesFragment())
-                    true
-                }
                 R.id.item_orders -> {
-                    openFragment(ClientOrdersFragment())
+                    openFragment(DeliveryOrdersFragment())
                     true
                 }
                 R.id.item_profile -> {
@@ -67,6 +67,12 @@ class ClientHomeActivity : AppCompatActivity() {
         transaction.replace(R.id.container, fragment)
         transaction.addToBackStack(null)
         transaction.commit()
+    }
+
+    private fun logout(){
+        sharedPerf?.remove("user")
+        val i = Intent(this, MainActivity::class.java)
+        startActivity(i)
     }
 
     private fun getUserFromSession(){

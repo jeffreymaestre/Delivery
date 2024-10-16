@@ -1,6 +1,8 @@
 package com.kotlin.appdelivery.activities
 
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -12,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.kotlin.appdelivery.R
 import com.kotlin.appdelivery.activities.client.home.ClientHomeActivity
+import com.kotlin.appdelivery.activities.delivery.home.DeliveryHomeActivity
+import com.kotlin.appdelivery.activities.restaurant.home.RestaurantHomeActivity
 import com.kotlin.appdelivery.models.ResponseHttp
 import com.kotlin.appdelivery.models.User
 import com.kotlin.appdelivery.providers.UsersProviders
@@ -76,11 +80,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun goToClientHome(){
         val i = Intent(this, ClientHomeActivity::class.java)
+        i.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK // eliminar historial de pantallas
+        startActivity(i)
+    }
+
+    private fun goToRestaurantHome(){
+        val i = Intent(this, RestaurantHomeActivity::class.java)
+        i.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK // eliminar historial de pantallas
+        startActivity(i)
+    }
+
+    private fun goToDeliveryHome(){
+        val i = Intent(this, DeliveryHomeActivity::class.java)
+        i.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK // eliminar historial de pantallas
         startActivity(i)
     }
 
     private fun goToSelectRol(){
         val i = Intent(this, SelectRolesActivity::class.java)
+        i.flags = FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK // eliminar historial de pantallas
         startActivity(i)
     }
 
@@ -108,7 +126,21 @@ class MainActivity : AppCompatActivity() {
         if (!sharedPerf.getData("user").isNullOrBlank()){
             // VALIDO SI EL USUARIO EXISTE EN SESION
             val user = gson.fromJson(sharedPerf.getData("user"), User::class.java)
-            goToClientHome()
+            if (!sharedPerf.getData("rol").isNullOrBlank()){
+                val rol = sharedPerf.getData("rol")?.replace("\"", "")
+                if (rol == "RESTAURANTE"){
+                    goToRestaurantHome()
+                }
+                else if (rol == "CLIENTE"){
+                    goToClientHome()
+                }
+                else if (rol == "DELIVERY"){
+                    goToDeliveryHome()
+                }
+            }
+            else{
+                goToClientHome()
+            }
         }
     }
 
