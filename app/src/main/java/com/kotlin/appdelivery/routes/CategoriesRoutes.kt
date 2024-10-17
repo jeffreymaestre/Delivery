@@ -1,5 +1,6 @@
 package com.kotlin.appdelivery.routes
 
+import com.kotlin.appdelivery.models.Category
 import com.kotlin.appdelivery.models.ResponseHttp
 import com.kotlin.appdelivery.models.User
 import okhttp3.MultipartBody
@@ -8,31 +9,26 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import java.util.ArrayList
 
-interface UsersRoutes {
-    @POST("users/create")
-    fun register(@Body user: User): Call<ResponseHttp>
+interface CategoriesRoutes {
 
-    @FormUrlEncoded
-    @POST("users/login")
-    fun login(@Field("email") email: String, @Field("password") password: String): Call<ResponseHttp>
+    @GET("categories/getAll")
+    fun getAll(
+        @Header("Authorization") token: String
+    ): Call<ArrayList<Category>>
 
     @Multipart
-    @PUT("users/update")
-    fun update(
+    @POST("categories/create")
+    fun create(
         @Part image: MultipartBody.Part,
-        @Part("user") user: RequestBody,
-        @Header("Authorization") token: String
-    ): Call<ResponseHttp>
-
-    @PUT("users/updateWithoutImage")
-    fun updateWithoutImage(
-        @Body user: User,
+        @Part("category") category: RequestBody,
         @Header("Authorization") token: String
     ): Call<ResponseHttp>
 }

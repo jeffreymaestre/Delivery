@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import com.kotlin.appdelivery.R
 import com.kotlin.appdelivery.activities.MainActivity
 import com.kotlin.appdelivery.activities.SelectRolesActivity
+import com.kotlin.appdelivery.activities.client.update.ClientUpdateActivity
 import com.kotlin.appdelivery.models.User
 import com.kotlin.appdelivery.utils.SharePref
 import de.hdodenhof.circleimageview.CircleImageView
@@ -54,19 +55,31 @@ class ClienteProfileFragment : Fragment() {
 
            buttonSelectRol?.setOnClickListener{ goToSelectRol()}
            imageViewLogout?.setOnClickListener{ logout() }
+           buttonUpdateProfile?.setOnClickListener{ goToUpdate() }
 
-           getUserFromSession()
-
-           textViewName?.text = "${user?.name} ${user?.lastname}"
-           textViewEmail?.text = user?.email
-           textViewPhone?.text = user?.phone
-
-           if (!user?.image.isNullOrBlank()){
-               Glide.with(requireContext()).load(user?.image).into(circleImageUser!!)
-           }
+           loadUserData()
 
         return myView
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Recargar los datos del usuario cada vez que el fragmento se reanuda
+        loadUserData()
+    }
+
+    private fun loadUserData(){
+        getUserFromSession()
+
+        textViewName?.text = "${user?.name} ${user?.lastname}"
+        textViewEmail?.text = user?.email
+        textViewPhone?.text = user?.phone
+
+        if (!user?.image.isNullOrBlank()){
+            Glide.with(requireContext()).load(user?.image).into(circleImageUser!!)
+        }
+    }
+
 
     private fun logout(){
         sharedPerf?.remove("user")
@@ -81,6 +94,11 @@ class ClienteProfileFragment : Fragment() {
             // VALIDO SI EL USUARIO EXISTE EN SESION
             user = gson.fromJson(sharedPerf?.getData("user"), User::class.java)
         }
+    }
+
+    private fun goToUpdate(){
+        val i = Intent(requireContext(), ClientUpdateActivity::class.java)
+        startActivity(i)
     }
 
     private fun goToSelectRol(){

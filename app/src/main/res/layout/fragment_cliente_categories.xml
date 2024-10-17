@@ -5,10 +5,14 @@
     android:layout_height="match_parent"
     tools:context=".fragments.client.ClienteCategoriesFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <include layout="@layout/action_bar"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycleview_categories"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="FRAGMENT CLIENT CATEGORIES" />
+        android:layout_marginBottom="60dp"
+        android:layout_marginTop="55dp"
+        />
 
 </FrameLayout>
