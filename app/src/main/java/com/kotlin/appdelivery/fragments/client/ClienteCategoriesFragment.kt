@@ -1,9 +1,13 @@
 package com.kotlin.appdelivery.fragments.client
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -14,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.kotlin.appdelivery.R
+import com.kotlin.appdelivery.activities.client.shoping_bag.ClientShopingBagActivity
 import com.kotlin.appdelivery.adapters.CategoriesAdapter
 import com.kotlin.appdelivery.models.Category
 import com.kotlin.appdelivery.models.User
@@ -43,6 +48,7 @@ class ClienteCategoriesFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         myView = inflater.inflate(R.layout.fragment_cliente_categories, container, false)
+        setHasOptionsMenu(true)
 
         toolbar = myView?.findViewById(R.id.toolbar)
         toolbar?.setTitleTextColor(ContextCompat.getColor(requireContext(), R.color.white))
@@ -61,6 +67,23 @@ class ClienteCategoriesFragment : Fragment() {
         getCategories()
 
         return  myView
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_shoping_bag, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.item_shoping_bag){
+            goToShopingBag()
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun goToShopingBag(){
+        val i = Intent(requireContext(), ClientShopingBagActivity::class.java)
+        startActivity(i)
     }
 
     private fun getCategories(){

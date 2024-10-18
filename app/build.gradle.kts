@@ -54,7 +54,19 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("com.github.dhaval2404:imagepicker:2.1")
-    implementation(libs.androidx.activity)
+    implementation ("com.github.tommasoberlose:progress-dialog:1.0.0") {
+        exclude (group = "com.android.support")
+    }
+    implementation ("com.github.denzcoskun:ImageSlideshow:0.1.2")
+
+    implementation ("com.google.maps.android:maps-ktx:3.2.0")
+    implementation ("com.google.maps.android:maps-utils-ktx:3.2.0")
+    implementation ("com.google.android.gms:play-services-maps:17.0.1")
+    implementation ("com.google.android.gms:play-services-location:18.0.0")
+    implementation ("com.google.maps.android:android-maps-utils:2.2.3")
+
+
+            implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

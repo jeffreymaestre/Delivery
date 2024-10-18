@@ -22,9 +22,13 @@ import com.google.gson.Gson
 import com.kotlin.appdelivery.R
 import com.kotlin.appdelivery.adapters.CategoriesAdapter
 import com.kotlin.appdelivery.models.Category
+import com.kotlin.appdelivery.models.Product
+import com.kotlin.appdelivery.models.ResponseHttp
 import com.kotlin.appdelivery.models.User
 import com.kotlin.appdelivery.providers.CategoriesProvider
+import com.kotlin.appdelivery.providers.ProductsProvider
 import com.kotlin.appdelivery.utils.SharePref
+import com.tommasoberlose.progressdialog.ProgressDialogFragment
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -50,6 +54,7 @@ class RestaurantProductFragment : Fragment() {
     var imageFile3: File? = null
 
     var categoriesProvider: CategoriesProvider? = null
+    var productsProvider: ProductsProvider? = null
     var user: User? = null
     var sharePref: SharePref? = null
     var categories = ArrayList<Category>()
@@ -81,6 +86,7 @@ class RestaurantProductFragment : Fragment() {
         getUserFromSession()
 
         categoriesProvider = CategoriesProvider(user?.sessionToken!!)
+        productsProvider = ProductsProvider(user?.sessionToken!!)
 
         getCategories()
 
@@ -166,10 +172,58 @@ class RestaurantProductFragment : Fragment() {
         val name = editTextName?.text.toString()
         val description = editTextDescription?.text.toString()
         val priceText = editTextPrice?.text.toString()
+        val files = ArrayList<File>()
 
         if (isValidForm(name, description, priceText)){
-            
+            val product = Product(
+                name = name,
+                description = description,
+                price = priceText.toDouble(),
+                idCategory = idCategory
+            )
+
+            files.add(imageFile1!!)
+            files.add(imageFile2!!)
+            files.add(imageFile3!!)
+
+            ProgressDialogFragment.showProgressBar(requireActivity())
+
+            productsProvider?.create(files, product)?.enqueue(object : Callback<ResponseHttp>{
+                override fun onResponse(
+                    call: Call<ResponseHttp>,
+                    response: Response<ResponseHttp>
+                ) {
+                    ProgressDialogFragment.hideProgressBar(requireActivity())
+
+                    Log.d(TAG, "Response: $response")
+                    Log.d(TAG, "Body: ${response.body()}")
+                    Toast.makeText(requireContext(), response.body()?.message, Toast.LENGTH_SHORT).show()
+
+                    if (response.body()?.isSuccess == true){
+                        resetForm()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
+                    ProgressDialogFragment.hideProgressBar(requireActivity())
+                    Log.d(TAG, "Error: ${t.message}")
+                    Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+
+            })
         }
+    }
+
+    private fun resetForm(){
+        editTextName?.setText("")
+        editTextDescription?.setText("")
+        editTextPrice?.setText("")
+        imageFile1 = null
+        imageFile2 = null
+        imageFile3 = null
+        imageViewProduct1?.setImageResource(R.drawable.ic_image)
+        imageViewProduct2?.setImageResource(R.drawable.ic_image)
+        imageViewProduct3?.setImageResource(R.drawable.ic_image)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
