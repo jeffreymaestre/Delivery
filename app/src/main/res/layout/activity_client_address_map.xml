@@ -7,14 +7,11 @@
     android:layout_height="match_parent"
     tools:context=".activities.client.address.map.ClientAddressMapActivity">
 
-    <include layout="@layout/action_bar" />
-
     <fragment
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_marginTop="55dp"
         />
 
     <ImageView
@@ -26,12 +23,13 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="50dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         app:cardCornerRadius="10dp">
 
         <TextView
+            android:id="@+id/textview_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Direccion"
@@ -42,7 +40,7 @@
     </androidx.cardview.widget.CardView>
 
     <Button
-        android:id="@+id/btn_register"
+        android:id="@+id/btn_acept"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Aceptar"

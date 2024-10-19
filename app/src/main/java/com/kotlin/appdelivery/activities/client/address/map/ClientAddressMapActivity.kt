@@ -4,11 +4,14 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -31,10 +34,19 @@ import java.net.URI.create
 
 class ClientAddressMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    val TAG = "ClientAddress"
     var googleMap: GoogleMap? = null
 
     val PERMISSION_ID = 97
     var fusedLocationClient: FusedLocationProviderClient? = null
+
+    var texviewAddress: TextView? = null
+    var buttonAcept: Button? = null
+
+    var city = ""
+    var country = ""
+    var address = ""
+    var addresLatLong: LatLng? = null
 
     private val locationCallback = object: LocationCallback(){
         override fun onLocationResult(locationResult: LocationResult) {
@@ -58,7 +70,40 @@ class ClientAddressMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        texviewAddress = findViewById(R.id.textview_address)
+        buttonAcept = findViewById(R.id.btn_acept)
+
         getLastLocation()
+
+        buttonAcept?.setOnClickListener{ goToCreateAddress() }
+    }
+
+    private fun goToCreateAddress(){
+        val i = Intent()
+        i.putExtra("city", city)
+        i.putExtra("address", address)
+        i.putExtra("country", country)
+        i.putExtra("lat", addresLatLong?.latitude)
+        i.putExtra("lng", addresLatLong?.longitude)
+        setResult(RESULT_OK, i)
+        finish() // Volver hacia atras
+    }
+
+    private fun onCameraMove(){
+        googleMap?.setOnCameraIdleListener {
+            try {
+                val geocoder = Geocoder(this)
+                addresLatLong = googleMap?.cameraPosition?.target
+                val addressList = geocoder.getFromLocation(addresLatLong?.latitude!!, addresLatLong?.longitude!!, 1)
+                city = addressList!![0].locality //Ciudad
+                country = addressList[0].countryName
+                address = addressList[0].getAddressLine(0)
+
+                texviewAddress?.text = "$address $city"
+            }catch (e: Exception) {
+                Log.d(TAG, "Error: ${e.message}")
+            }
+        }
     }
 
     private fun getLastLocation() {
@@ -173,5 +218,6 @@ class ClientAddressMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
+        onCameraMove()
     }
 }
