@@ -54,6 +54,10 @@ class ClientDetailActivity : AppCompatActivity() {
         }
 
         product = gson.fromJson(intent.getStringExtra("product"), Product::class.java)
+        if (product == null) {
+            Log.e(TAG, "El producto no se pasó correctamente.")
+            return
+        }
         sharePref = SharePref(this)
 
         imageSlider = findViewById(R.id.imageslider)
@@ -98,7 +102,35 @@ class ClientDetailActivity : AppCompatActivity() {
         Toast.makeText(this, "Producto agregado", Toast.LENGTH_SHORT).show()
     }
 
-    private fun getProductsFromSharedPref(){
+    private fun getProductsFromSharedPref() {
+        val orderData = sharePref?.getData("order")
+        if (!orderData.isNullOrBlank()) {
+            try {
+                val type = object : TypeToken<ArrayList<Product>>() {}.type
+                selectedProducts = gson.fromJson(orderData, type)
+                val index = getIndexOf(product?.id!!)
+
+                if (index != -1) {
+                    product?.quantity = selectedProducts[index].quantity
+                    textViewCounter?.text = "${product?.quantity}"
+                    productPrice = product?.price!! * product?.quantity!!
+                    textViewPrice?.text = "${productPrice}$"
+                    buttonAdd?.setText("Editar producto")
+                    buttonAdd?.backgroundTintList = ColorStateList.valueOf(Color.RED)
+                }
+
+                for (p in selectedProducts) {
+                    Log.d(TAG, "Shared pref: $p")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error al obtener productos de SharedPreferences: ${e.message}")
+            }
+        } else {
+            Log.d(TAG, "No se encontraron productos en SharedPreferences.")
+        }
+    }
+
+    /*private fun getProductsFromSharedPref(){
         if (!sharePref?.getData("order").isNullOrBlank()){
             val type = object : TypeToken<ArrayList<Product>>() {}.type
             selectedProducts = gson.fromJson(sharePref?.getData("order"), type)
@@ -118,7 +150,7 @@ class ClientDetailActivity : AppCompatActivity() {
                 Log.d(TAG, "Shared pref: $p")
             }
         }
-    }
+    }*/
 
     //METODO PARA COMPARAR SI UN PRODUCTO YA EXISTE EN SHARED PREF Y PODER EDITAR LA CANTIDAD DEL PRODUCTO SELECCIONADO
     private fun getIndexOf(idProduct: String): Int{

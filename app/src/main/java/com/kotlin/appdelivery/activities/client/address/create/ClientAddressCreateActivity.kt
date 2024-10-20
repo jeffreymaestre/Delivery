@@ -14,8 +14,18 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.gson.Gson
 import com.kotlin.appdelivery.R
+import com.kotlin.appdelivery.activities.client.address.list.ClienteAddressListActivity
 import com.kotlin.appdelivery.activities.client.address.map.ClientAddressMapActivity
+import com.kotlin.appdelivery.models.Address
+import com.kotlin.appdelivery.models.ResponseHttp
+import com.kotlin.appdelivery.models.User
+import com.kotlin.appdelivery.providers.AddressProvider
+import com.kotlin.appdelivery.utils.SharePref
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ClientAddressCreateActivity : AppCompatActivity() {
 
@@ -30,6 +40,10 @@ class ClientAddressCreateActivity : AppCompatActivity() {
     var addresLat = 0.0
     var addressLng = 0.0
 
+    var addressProvider: AddressProvider? = null
+    var sharePref: SharePref? = null
+    var user: User? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,6 +53,11 @@ class ClientAddressCreateActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        sharePref = SharePref(this)
+
+        getUserFromSession()
+        addressProvider = AddressProvider(user?.sessionToken!!)
 
         toolbar = findViewById(R.id.toolbar)
         editTextRefPoint = findViewById(R.id.edit_text_ref_point)
@@ -52,6 +71,16 @@ class ClientAddressCreateActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         editTextRefPoint?.setOnClickListener{ goToAddresMap() }
+        btnCreateAddress?.setOnClickListener{ createAddress()}
+    }
+
+    private fun getUserFromSession(){
+        val gson = Gson()
+
+        if (!sharePref?.getData("user").isNullOrBlank()){
+            // VALIDO SI EL USUARIO EXISTE EN SESION
+            user = gson.fromJson(sharePref?.getData("user"), User::class.java)
+        }
     }
 
     private fun createAddress(){
@@ -60,8 +89,38 @@ class ClientAddressCreateActivity : AppCompatActivity() {
 
         if (isValidForm(address, neighbor)){
             //Lanzar la peticion
+            val addressModel = Address(
+                address = address,
+                neighborhood = neighbor,
+                idUser = user?.id!!,
+                lat = addresLat,
+                lng = addressLng
+            )
+            addressProvider?.create(addressModel)?.enqueue(object : Callback<ResponseHttp>{
+                override fun onResponse(
+                    call: Call<ResponseHttp>,
+                    response: Response<ResponseHttp>
+                ) {
+                    if (response.body() != null){
+                        Toast.makeText(this@ClientAddressCreateActivity, response.body()?.message, Toast.LENGTH_SHORT).show()
+                        goToAddressList()
+                    } else{
+                        Toast.makeText(this@ClientAddressCreateActivity, "Ocurrio un error en la peticion", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
+                    Toast.makeText(this@ClientAddressCreateActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+
+            })
         }
 
+    }
+
+    private fun goToAddressList(){
+        val i = Intent(this, ClienteAddressListActivity::class.java)
+        startActivity(i)
     }
 
     private fun isValidForm(address: String, neighbor: String): Boolean {

@@ -1,5 +1,6 @@
 package com.kotlin.appdelivery.api
 
+import com.kotlin.appdelivery.routes.AddressRoutes
 import com.kotlin.appdelivery.routes.CategoriesRoutes
 import com.kotlin.appdelivery.routes.ProductsRoutes
 import com.kotlin.appdelivery.routes.UsersRoutes
@@ -22,5 +23,9 @@ class ApiRoutes {
 
     fun getProductssRoutes(token: String): ProductsRoutes{
         return retrofit.getClientWithToken(API_URL, token).create(ProductsRoutes::class.java)
+    }
+
+    fun getAddressRoutes(token: String): AddressRoutes{
+        return retrofit.getClientWithToken(API_URL, token).create(AddressRoutes::class.java)
     }
 }

@@ -25,9 +25,20 @@ class ShopingBagAdapter(val context: Activity, val products: ArrayList<Product>)
 
     val sharedPref = SharePref(context)
 
-    init {
+    /*init {
         (context as ClientShopingBagActivity).setTotal(getTotal())
+    }*/
+
+    init {
+        // Solo calcular el total si la lista de productos no es vacía
+        if (products.isNotEmpty()) {
+            (context as ClientShopingBagActivity).setTotal(getTotal())
+        } else {
+            // Si no hay productos, establecer total a 0
+            (context as ClientShopingBagActivity).setTotal(0.0)
+        }
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopingBagViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.cardview_shoping_bag, parent, false)
@@ -42,8 +53,9 @@ class ShopingBagAdapter(val context: Activity, val products: ArrayList<Product>)
         val product = products[position] //Devuelve cada categoria
 
         holder.textViewName.text = product.name
-        holder.textViewCounter.text = "${product.quantity}"
-        holder.textViewPrice.text = "${product.price * product.quantity!!}$"
+        holder.textViewCounter.text = "${product.quantity?: 1}"
+        holder.textViewPrice.text = "${(product.price ?: 0.0) * (product.quantity ?: 0)}$"
+        //holder.textViewPrice.text = "${product.price * product.quantity!!}$"
         Glide.with(context).load(product.image1).into(holder.imageViewProduct)
 
         holder.imageViewAdd.setOnClickListener { addItem(product, holder) }
@@ -53,13 +65,23 @@ class ShopingBagAdapter(val context: Activity, val products: ArrayList<Product>)
        // holder.itemView.setOnClickListener{ goToDetail(product) }
     }
 
-    private fun getTotal(): Double{
+    /*private fun getTotal(): Double{
         var total = 0.0
         for (p in products){
             total += (p.quantity!! * p.price)
         }
         return total
+    }*/
+    private fun getTotal(): Double {
+        var total = 0.0
+        for (p in products) {
+            // Verificar si los valores son nulos antes de operar
+            val quantity = p.quantity ?: 0
+            total += (quantity * (p.price ?: 0.0))
+        }
+        return total
     }
+
 
     private fun goToDetail(product: Product){
             val i = Intent(context, ClientDetailActivity::class.java)
@@ -101,29 +123,59 @@ class ShopingBagAdapter(val context: Activity, val products: ArrayList<Product>)
 
     private fun addItem(product: Product, holder: ShopingBagViewHolder){
         val index = getIndexOf(product.id!!)
-        product.quantity = product.quantity!! + 1
+        //product.quantity = product.quantity!! + 1
+        product.quantity = (product.quantity ?: 0) + 1
         products[index].quantity = product.quantity
 
         holder.textViewCounter.text = "${product?.quantity}"
-        holder.textViewPrice.text = "${product.quantity!! * product.price}$"
+        //holder.textViewPrice.text = "${product.quantity!! * product.price}$"
+
+        holder.textViewPrice.text = "${product.quantity!! * (product.price ?: 0.0)}$"
 
         sharedPref.save("order", products)
         (context as ClientShopingBagActivity).setTotal(getTotal())
+
+        notifyItemChanged(index)
     }
 
-    private fun removeItem(product: Product, holder: ShopingBagViewHolder){
+    /*private fun removeItem(product: Product, holder: ShopingBagViewHolder){
         if (product.quantity!! > 1 ){
             val index = getIndexOf(product.id!!)
             product.quantity = product.quantity!! - 1
             products[index].quantity = product.quantity
 
             holder.textViewCounter.text = "${product?.quantity}"
-            holder.textViewPrice.text = "${product.quantity!! * product.price}$"
+            holder.textViewPrice.text = "${product.quantity!! * (product.price ?: 0.0)}$"
+            //holder.textViewPrice.text = "${product.quantity!! * product.price}$"
 
             sharedPref.save("order", products)
             (context as ClientShopingBagActivity).setTotal(getTotal())
+            notifyItemChanged(index)
+        }
+    }*/
+    private fun removeItem(product: Product, holder: ShopingBagViewHolder) {
+        // Verificar si el producto y sus campos no son nulos
+        val productId = product.id ?: return
+        val productQuantity = product.quantity ?: return
+
+        if (productQuantity > 1) {
+            val index = getIndexOf(productId)
+
+            // Verificar si el producto existe en la lista (índice válido)
+            if (index != -1) {
+                product.quantity = productQuantity - 1
+                products[index].quantity = product.quantity
+
+                holder.textViewCounter.text = "${product.quantity}"
+                holder.textViewPrice.text = "${product.quantity!! * (product.price ?: 0.0)}$"
+
+                sharedPref.save("order", products)
+                (context as ClientShopingBagActivity).setTotal(getTotal())
+                notifyItemChanged(index)
+            }
         }
     }
+
 
     private fun deleteItem(position: Int){
         products.removeAt(position)

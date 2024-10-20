@@ -73,7 +73,7 @@ class ClientShopingBagActivity : AppCompatActivity() {
         textViewTotal?.text = "${total}$"
     }
 
-    private fun getProductsFromSharedPref() {
+    /*private fun getProductsFromSharedPref() {
         if (!sharePref?.getData("order").isNullOrBlank()) {
             val type = object : TypeToken<ArrayList<Product>>() {}.type
             selectedProducts = gson.fromJson(sharePref?.getData("order"), type)
@@ -82,5 +82,26 @@ class ClientShopingBagActivity : AppCompatActivity() {
             recyclerViewShopingBag?.adapter = adapter
 
         }
+    }*/
+
+    private fun getProductsFromSharedPref() {
+        val orderData = sharePref?.getData("order")
+        if (!orderData.isNullOrBlank()) {
+            val type = object : TypeToken<ArrayList<Product>>() {}.type
+            selectedProducts = gson.fromJson(orderData, type)
+
+            // Asegurarse de que la lista no esté vacía antes de asignarla al adaptador
+            if (selectedProducts.isNotEmpty()) {
+                adapter = ShopingBagAdapter(this, selectedProducts)
+                recyclerViewShopingBag?.adapter = adapter
+            } else {
+                // Manejar caso cuando no hay productos en el carrito
+                setTotal(0.0)
+            }
+        } else {
+            // Si no hay datos, manejar el caso
+            setTotal(0.0)
+        }
     }
+
 }
