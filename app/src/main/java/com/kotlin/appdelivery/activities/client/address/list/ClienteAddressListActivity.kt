@@ -2,6 +2,9 @@ package com.kotlin.appdelivery.activities.client.address.list
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +18,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.kotlin.appdelivery.R
 import com.kotlin.appdelivery.activities.client.address.create.ClientAddressCreateActivity
+import com.kotlin.appdelivery.activities.client.payments.form.ClientPaymentsFormActivity
 import com.kotlin.appdelivery.adapters.AddressAdapter
 import com.kotlin.appdelivery.models.Address
 import com.kotlin.appdelivery.models.User
@@ -31,12 +35,14 @@ class ClienteAddressListActivity : AppCompatActivity() {
     var toolbar: Toolbar? = null
 
     var recyclerView: RecyclerView? = null
+    var buttonNext: Button? = null
     var adapter:  AddressAdapter? = null
     var addressProvider: AddressProvider? = null
     var sharePref: SharePref? = null
     var user: User? = null
 
     var address = ArrayList<Address>()
+    val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +58,7 @@ class ClienteAddressListActivity : AppCompatActivity() {
 
         fabCreateAddress = findViewById(R.id.fab_address_create)
         toolbar = findViewById(R.id.toolbar)
+        buttonNext = findViewById(R.id.btn_next)
         recyclerView = findViewById(R.id.recyclerview_address)
 
         recyclerView?.layoutManager = LinearLayoutManager(this)
@@ -67,6 +74,29 @@ class ClienteAddressListActivity : AppCompatActivity() {
         fabCreateAddress?.setOnClickListener{ goToAddressCreate() }
 
         getAddress()
+
+        buttonNext?.setOnClickListener{ goToPaymentsForms() }
+    }
+
+    fun resetValue(position: Int){
+        val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position) // obtenemos una direccion
+        val view = viewHolder?.itemView
+        val imageViewCheck = view?.findViewById<ImageView>(R.id.imageview_check)
+        imageViewCheck?.visibility = View.GONE
+    }
+
+    private fun getAddressFromSession(){
+        if (!sharePref?.getData("address").isNullOrBlank()){
+            val a = gson.fromJson(sharePref?.getData("address"), Address::class.java)
+            goToPaymentsForms()
+        }else{
+            Toast.makeText(this, "Selecciona una direccion", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun goToPaymentsForms(){
+        val i = Intent(this, ClientPaymentsFormActivity::class.java)
+        startActivity(i)
     }
 
     private fun getAddress(){
