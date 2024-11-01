@@ -16,13 +16,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.kotlin.appdelivery.R
 import com.kotlin.appdelivery.activities.client.address.create.ClientAddressCreateActivity
 import com.kotlin.appdelivery.activities.client.payments.form.ClientPaymentsFormActivity
 import com.kotlin.appdelivery.adapters.AddressAdapter
+import com.kotlin.appdelivery.adapters.ShopingBagAdapter
 import com.kotlin.appdelivery.models.Address
+import com.kotlin.appdelivery.models.Order
+import com.kotlin.appdelivery.models.Product
+import com.kotlin.appdelivery.models.ResponseHttp
 import com.kotlin.appdelivery.models.User
 import com.kotlin.appdelivery.providers.AddressProvider
+import com.kotlin.appdelivery.providers.OrdersProvider
 import com.kotlin.appdelivery.utils.SharePref
 import retrofit2.Call
 import retrofit2.Callback
@@ -38,11 +44,14 @@ class ClienteAddressListActivity : AppCompatActivity() {
     var buttonNext: Button? = null
     var adapter:  AddressAdapter? = null
     var addressProvider: AddressProvider? = null
+    var ordersProvider: OrdersProvider? = null
     var sharePref: SharePref? = null
     var user: User? = null
 
     var address = ArrayList<Address>()
     val gson = Gson()
+
+    var selectedProducts = ArrayList<Product>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +64,7 @@ class ClienteAddressListActivity : AppCompatActivity() {
         }
 
         sharePref = SharePref(this)
+        getProductsFromSharedPref()
 
         fabCreateAddress = findViewById(R.id.fab_address_create)
         toolbar = findViewById(R.id.toolbar)
@@ -70,12 +80,43 @@ class ClienteAddressListActivity : AppCompatActivity() {
 
         getUserFromSession()
         addressProvider = AddressProvider(user?.sessionToken!!)
+        ordersProvider = OrdersProvider(user?.sessionToken!!)
 
         fabCreateAddress?.setOnClickListener{ goToAddressCreate() }
 
         getAddress()
 
-        buttonNext?.setOnClickListener{ goToPaymentsForms() }
+        buttonNext?.setOnClickListener{ getAddressFromSession() }
+    }
+
+    private fun createOrder(idAddress: String){
+        val order = Order(
+            products = selectedProducts,
+            idClient = user?.id!!,
+            idAddress =idAddress
+        )
+        ordersProvider?.create(order)?.enqueue(object : Callback<ResponseHttp>{
+            override fun onResponse(call: Call<ResponseHttp>, response: Response<ResponseHttp>) {
+                if (response.body() != null){
+                    Toast.makeText(this@ClienteAddressListActivity, "${response.body()?.message}", Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(this@ClienteAddressListActivity, "Ocurrio un errror en la peticion", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
+                Toast.makeText(this@ClienteAddressListActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+    private fun getProductsFromSharedPref() {
+        val orderData = sharePref?.getData("order")
+        if (!orderData.isNullOrBlank()) {
+            val type = object : TypeToken<ArrayList<Product>>() {}.type
+            selectedProducts = gson.fromJson(orderData, type)
+        }
     }
 
     fun resetValue(position: Int){
@@ -88,7 +129,8 @@ class ClienteAddressListActivity : AppCompatActivity() {
     private fun getAddressFromSession(){
         if (!sharePref?.getData("address").isNullOrBlank()){
             val a = gson.fromJson(sharePref?.getData("address"), Address::class.java)
-            goToPaymentsForms()
+            createOrder(a.id!!)
+        //goToPaymentsForms()
         }else{
             Toast.makeText(this, "Selecciona una direccion", Toast.LENGTH_SHORT).show()
         }

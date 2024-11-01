@@ -89,7 +89,7 @@ class ClientDetailActivity : AppCompatActivity() {
     private fun addToBag(){
         val index = getIndexOf(product?.id!!) //indice del producto si existe en shared pref
         if (index == -1){
-            if (product?.quantity == 0){
+            if (product?.quantity == null){
                 product?.quantity = 1
             }
             selectedProducts.add(product!!)
