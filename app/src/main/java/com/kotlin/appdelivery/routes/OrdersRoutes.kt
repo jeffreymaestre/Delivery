@@ -22,11 +22,18 @@ import java.util.ArrayList
 
 interface OrdersRoutes {
 
-//    @GET("address/findByUser/{id_user}")
-//    fun getAddress(
-//        @Path("id_user") idUser: String,
-//        @Header("Authorization") token: String
-//    ): Call<ArrayList<Address>>
+    @GET("orders/findByStatus/{status}")
+    fun getOrdersByStatus(
+        @Path("status") status: String,
+        @Header("Authorization") token: String
+    ): Call<ArrayList<Order>>
+
+    @GET("orders/findByClientAndStatus/{id_client}/{status}")
+    fun getOrdersByClientAndStatus(
+        @Path("id_client") id_client: String,
+        @Path("status") status: String,
+        @Header("Authorization") token: String
+    ): Call<ArrayList<Order>>
 
     @POST("orders/create")
     fun create(
