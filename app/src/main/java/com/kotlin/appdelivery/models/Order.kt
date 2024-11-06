@@ -10,7 +10,7 @@ class Order (
     @SerializedName("id_delivery") val idDelivery: String? = null,
     @SerializedName("id_address") val idAddress: String,
     @SerializedName("status") val status: String? = null,
-    @SerializedName("timestamp") val timestamp: Long = 0,
+    @SerializedName("timestamp") val timestamp: String? = null,
     @SerializedName("products") val products: ArrayList<Product>,
     @SerializedName("client") val client: User? = null,
     @SerializedName("address") val address: Address? = null

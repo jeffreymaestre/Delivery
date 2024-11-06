@@ -13,6 +13,7 @@ import com.google.gson.Gson
 import com.kotlin.appdelivery.R
 import com.kotlin.appdelivery.activities.client.address.list.ClienteAddressListActivity
 import com.kotlin.appdelivery.activities.client.home.ClientHomeActivity
+import com.kotlin.appdelivery.activities.client.orders.detail.ClientOrdersDetailActivity
 import com.kotlin.appdelivery.activities.client.products.list.ClientProductsListActivity
 import com.kotlin.appdelivery.activities.delivery.home.DeliveryHomeActivity
 import com.kotlin.appdelivery.activities.restaurant.home.RestaurantHomeActivity
@@ -43,8 +44,14 @@ class OrdersClientAdapter(val context: Activity, val orders: ArrayList<Order>): 
 
         // Configurar el clic del item para cambiar la selección
         holder.itemView.setOnClickListener {
-
+            goToOrderDetail(order)
         }
+    }
+
+    private fun goToOrderDetail(order: Order){
+        val i = Intent(context, ClientOrdersDetailActivity::class.java)
+        i.putExtra("order", order.toJson())
+        context.startActivity(i)
     }
 
     class OrdersViewHolder(view: View): RecyclerView.ViewHolder(view){
