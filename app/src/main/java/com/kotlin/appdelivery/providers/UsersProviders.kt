@@ -1,6 +1,7 @@
 package com.kotlin.appdelivery.providers
 
 import com.kotlin.appdelivery.api.ApiRoutes
+import com.kotlin.appdelivery.models.Category
 import com.kotlin.appdelivery.models.ResponseHttp
 import com.kotlin.appdelivery.models.User
 import com.kotlin.appdelivery.routes.UsersRoutes
@@ -9,6 +10,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
 import java.io.File
+import java.util.ArrayList
 
 class UsersProviders(val token: String? = null) {
 
@@ -22,6 +24,10 @@ class UsersProviders(val token: String? = null) {
         if (token != null){
             usersRoutesToken = api.getUsersRoutesWithToken(token)
         }
+    }
+
+    fun getDeliveryMen(): Call<ArrayList<User>>? {
+        return  usersRoutesToken?.getDeliverMen(token!!)
     }
 
     fun register(user: User): Call<ResponseHttp>?{
