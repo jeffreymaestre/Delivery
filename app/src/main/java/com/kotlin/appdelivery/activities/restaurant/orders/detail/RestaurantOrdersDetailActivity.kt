@@ -1,10 +1,12 @@
 package com.kotlin.appdelivery.activities.restaurant.orders.detail
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -18,11 +20,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.kotlin.appdelivery.R
+import com.kotlin.appdelivery.activities.restaurant.home.RestaurantHomeActivity
 import com.kotlin.appdelivery.adapters.OrderProductsAdapter
 import com.kotlin.appdelivery.adapters.OrdersClientAdapter
 import com.kotlin.appdelivery.models.Category
 import com.kotlin.appdelivery.models.Order
+import com.kotlin.appdelivery.models.ResponseHttp
 import com.kotlin.appdelivery.models.User
+import com.kotlin.appdelivery.providers.OrdersProvider
 import com.kotlin.appdelivery.providers.UsersProviders
 import com.kotlin.appdelivery.utils.SharePref
 import retrofit2.Call
@@ -42,11 +47,16 @@ class RestaurantOrdersDetailActivity : AppCompatActivity() {
     var texViewData: TextView? = null
     var texViewTotal: TextView? = null
     var texViewStatus: TextView? = null
+    var texViewDeliveryAvailable: TextView? = null
+    var texViewDelivery: TextView? = null
+    var texViewDeliveryName: TextView? = null
     var recyclerViewProducts: RecyclerView? = null
+    var buttonUpdate: Button? = null
 
     var adapter: OrderProductsAdapter? = null
 
     var usersProvider: UsersProviders? = null
+    var ordersProvider: OrdersProvider? = null
     var user: User? = null
     var sharePref: SharePref? = null
 
@@ -70,6 +80,7 @@ class RestaurantOrdersDetailActivity : AppCompatActivity() {
         getUserFromSession()
 
         usersProvider = UsersProviders(user?.sessionToken!!)
+        ordersProvider = OrdersProvider(user?.sessionToken!!)
 
         toolbar = findViewById(R.id.toolbar)
         toolbar?.setTitleTextColor(ContextCompat.getColor(this, R.color.black))
@@ -82,7 +93,11 @@ class RestaurantOrdersDetailActivity : AppCompatActivity() {
         texViewData = findViewById(R.id.textview_date)
         texViewTotal = findViewById(R.id.textview_total)
         texViewStatus = findViewById(R.id.textview_status)
+        texViewDeliveryAvailable = findViewById(R.id.textview_delivery_available)
+        texViewDelivery = findViewById(R.id.textview_delivery)
+        texViewDeliveryName = findViewById(R.id.textview_delivery_name)
         spinnerDeliveryMen = findViewById(R.id.spinner_delivery_men)
+        buttonUpdate = findViewById(R.id.btn_update)
 
         recyclerViewProducts = findViewById(R.id.recyclerview_products)
         recyclerViewProducts?.layoutManager = LinearLayoutManager(this)
@@ -94,11 +109,53 @@ class RestaurantOrdersDetailActivity : AppCompatActivity() {
         texViewAddress?.text = order?.address?.address
         texViewData?.text = "${order?.timestamp}"
         texViewStatus?.text = order?.status
+        texViewDelivery?.text = "${order?.delivery?.name} ${order?.delivery?.lastname}"
 
         Log.d(TAG, "Orden: ${order.toString()}")
 
         getTotal()
         getDeliveryMen()
+
+        if (order?.status == "PAGADO"){
+            buttonUpdate?.visibility = View.VISIBLE
+            texViewDeliveryAvailable?.visibility = View.VISIBLE
+            spinnerDeliveryMen?.visibility = View.VISIBLE
+            texViewDelivery?.visibility = View.GONE
+            texViewDeliveryName?.visibility = View.GONE
+        }
+
+        buttonUpdate?.setOnClickListener{ updateOrder() }
+    }
+
+    private fun updateOrder(){
+        order?.idDelivery = idDelivery
+        ordersProvider?.updateToDispatched(order!!)?.enqueue(object : Callback<ResponseHttp> {
+            override fun onResponse(call: Call<ResponseHttp>, response: Response<ResponseHttp>) {
+                if (response.body() != null){
+                    Toast.makeText(this@RestaurantOrdersDetailActivity, "Repartidor asignado correctamente", Toast.LENGTH_SHORT).show()
+
+                    if (response.body()?.isSuccess == true){
+                        Toast.makeText(this@RestaurantOrdersDetailActivity, "Repartidor asignado correctamente", Toast.LENGTH_SHORT).show()
+                        goToOrders()
+                    }else {
+                        Toast.makeText(this@RestaurantOrdersDetailActivity, "No se pudo asignar el repartidor", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this@RestaurantOrdersDetailActivity, "No hubo respuesta del servidor", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
+                Toast.makeText(this@RestaurantOrdersDetailActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+    private fun goToOrders() {
+        val i = Intent(this, RestaurantHomeActivity::class.java)
+        i.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(i)
     }
 
     private fun getDeliveryMen(){

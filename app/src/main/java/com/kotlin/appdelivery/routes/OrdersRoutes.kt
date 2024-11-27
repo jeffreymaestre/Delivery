@@ -40,4 +40,22 @@ interface OrdersRoutes {
         @Body order: Order,
         @Header("Authorization") token: String
     ): Call<ResponseHttp>
+
+    @PUT("orders/updateToDispatched")
+    fun updateToDispatched(
+        @Body order: Order,
+        @Header("Authorization") token: String
+    ): Call<ResponseHttp>
+
+  /*  @POST("orders/create")
+    fun create(
+        @Body order: Order,
+        @Header("Authorization") token: String
+    ): Call<ResponseHttp>
+
+    @POST("orders/create")
+    fun create(
+        @Body order: Order,
+        @Header("Authorization") token: String
+    ): Call<ResponseHttp>*/
 }
