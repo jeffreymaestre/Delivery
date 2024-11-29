@@ -63,6 +63,10 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
     private val locationCallback = object: LocationCallback(){
         override fun onLocationResult(locationResult: LocationResult) {
             var lastLocation = locationResult.lastLocation
+            myLocationLatLong = LatLng(lastLocation.latitude, lastLocation.longitude)
+
+            removeDeliveryMarker()
+            addDeliveryMarker()
             Log.d("LOCALIZACION",  "Callback: ${lastLocation}")
         }
     }
@@ -102,6 +106,10 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         finish() // Volver hacia atras
     }
 
+    private fun removeDeliveryMarker(){
+        markerDelivery?.remove()
+    }
+
     private fun addDeliveryMarker(){
         markerDelivery = googleMap?.addMarker(
             MarkerOptions()
@@ -121,33 +129,6 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
-    /*private fun addAddressMarker() {
-        // Verificar si 'order' y 'order.address' no son null
-        val address = order?.address
-        if (address != null) {
-            // Imprimir latitud y longitud en los logs
-            Log.d("AddAddressMarkerDebug", "Latitud: ${address.lat}")
-            Log.d("AddAddressMarkerDebug", "Longitud: ${address.lng}")
-
-            // Crear el LatLng con los valores de latitud y longitud
-            val addressLocation = LatLng(address.lat, address.lng)
-            markerDelivery = googleMap?.addMarker(
-                MarkerOptions()
-                    .position(addressLocation)
-                    .title("Entregar aquí")
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.home))
-            )
-        } else {
-            // Manejar el caso cuando 'address' sea null
-            Log.d("AddAddressMarkerDebug", "ORDER: ${order}")
-            Log.d("AddAddressMarkerDebug", "Latitud: ${address?.lat}")
-            Log.d("AddAddressMarkerDebug", "Longitud: ${address?.lng}")
-            Log.e("AddAddressMarkerDebug", "La dirección es null en el objeto 'order'")
-        }
-    }*/
-
-
-
     private fun getLastLocation() {
         if (checkPermision()) {
             if (isLocationEnabled()) {
@@ -166,24 +147,26 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 // Obtener la última ubicación si ya tenemos los permisos
+                requestNewLocationData()
+
                 fusedLocationClient?.lastLocation?.addOnCompleteListener { task ->
                     val location = task.result
                     myLocationLatLong = LatLng(location.latitude, location.longitude)
 
+                    removeDeliveryMarker()
                     addDeliveryMarker()
-                    addAddressMarker()
-
-                    if (location == null) {
-                        requestNewLocationData()
-                    } else {
-                        googleMap?.moveCamera(
-                            CameraUpdateFactory.newCameraPosition(
-                                CameraPosition.builder().target(
-                                    LatLng(location.latitude, location.longitude)
-                                ).zoom(15f).build()
-                            )
-                        )
+                    // Verifica si 'order' y 'order.address' no son null
+                    if (order?.address != null) {
+                        addAddressMarker() // Agrega el marcador para la dirección
                     }
+
+                    googleMap?.moveCamera(
+                        CameraUpdateFactory.newCameraPosition(
+                            CameraPosition.builder().target(
+                                LatLng(location.latitude, location.longitude)
+                            ).zoom(15f).build()
+                        )
+                    )
                 }
             } else {
                 Toast.makeText(this, "Habilita la localización", Toast.LENGTH_SHORT).show()
