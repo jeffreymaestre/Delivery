@@ -67,6 +67,8 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
             removeDeliveryMarker()
             addDeliveryMarker()
+            Log.d(TAG, "Callback: $lastLocation")
+
             Log.d("LOCALIZACION",  "Callback: ${lastLocation}")
         }
     }
@@ -106,11 +108,19 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         finish() // Volver hacia atras
     }
 
-    private fun removeDeliveryMarker(){
-        markerDelivery?.remove()
+    private fun removeDeliveryMarker() {
+        if (markerDelivery != null) {
+            Log.d(TAG, "Eliminando marcador existente")
+            markerDelivery?.remove()
+            markerDelivery = null
+        } else {
+            Log.d(TAG, "No hay marcador para eliminar")
+        }
     }
 
+
     private fun addDeliveryMarker(){
+        removeDeliveryMarker()
         markerDelivery = googleMap?.addMarker(
             MarkerOptions()
                 .position(myLocationLatLong)
@@ -121,7 +131,7 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun addAddressMarker(){
        val addressLocation = LatLng(order?.address?.lat!!, order?.address?.lng!!)
-        markerDelivery = googleMap?.addMarker(
+        markerAddress = googleMap?.addMarker(
             MarkerOptions()
                 .position(addressLocation)
                 .title("Entregar aquí")
@@ -146,6 +156,8 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
                     return
                 }
 
+                removeDeliveryMarker()
+
                 // Obtener la última ubicación si ya tenemos los permisos
                 requestNewLocationData()
 
@@ -155,6 +167,7 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     removeDeliveryMarker()
                     addDeliveryMarker()
+                    addAddressMarker()
                     // Verifica si 'order' y 'order.address' no son null
                     if (order?.address != null) {
                         addAddressMarker() // Agrega el marcador para la dirección
@@ -196,7 +209,7 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         ) {
             return
         }
-        fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+        fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())// inicializa la posicion en tiempo real
 
     }
 
