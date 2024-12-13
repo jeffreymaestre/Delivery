@@ -6,18 +6,22 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -33,10 +37,18 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.gson.Gson
 import com.kotlin.appdelivery.R
 import com.kotlin.appdelivery.models.Order
+import com.maps.route.DrawRouteSDK
+import com.maps.route.DrawRouteSDKImpl
+import com.maps.route.utils.extensions.drawMarker
+import de.hdodenhof.circleimageview.CircleImageView
+import org.json.JSONObject
+import java.io.IOException
 import java.net.URI.create
+
 
 class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -45,8 +57,6 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
     val PERMISSION_ID = 97
     var fusedLocationClient: FusedLocationProviderClient? = null
-
-    var buttonAcept: Button? = null
 
     var city = ""
     var country = ""
@@ -60,10 +70,19 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
     var order: Order? = null
     val gson = Gson()
 
+    var textViewClient: TextView? = null
+    var textViewAddress: TextView? = null
+    var textViewNeighborhood: TextView? = null
+    var buttonDelivered: Button? = null
+    var circleImageUser: CircleImageView? = null
+    var imageViewPhone: ImageView? = null
+
+    val REQUEST_PHONE_CALL = 10
+
     private val locationCallback = object: LocationCallback(){
         override fun onLocationResult(locationResult: LocationResult) {
             var lastLocation = locationResult.lastLocation
-            myLocationLatLong = LatLng(lastLocation.latitude, lastLocation.longitude)
+            myLocationLatLong = LatLng(lastLocation!!.latitude, lastLocation.longitude)
 
             removeDeliveryMarker()
             addDeliveryMarker()
@@ -90,22 +109,41 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        buttonAcept = findViewById(R.id.btn_acept)
+        textViewClient = findViewById(R.id.textview_client)
+        textViewAddress = findViewById(R.id.textview_address)
+        textViewNeighborhood = findViewById(R.id.textview_neighborhood)
+        circleImageUser = findViewById(R.id.circleimage_user)
+        imageViewPhone = findViewById(R.id.imageview_phone)
+        buttonDelivered = findViewById(R.id.btn_delivered)
 
         getLastLocation()
 
-        buttonAcept?.setOnClickListener{ goToCreateAddress() }
+        textViewClient?.text = "${order?.client?.name} ${order?.client?.lastname}"
+        textViewAddress?.text = order?.address?.address
+        textViewNeighborhood?.text = order?.address?.neighborhood
+
+        if(!order?.client?.image.isNullOrBlank()){
+            Glide.with(this).load(order?.client?.image).into(circleImageUser!!)
+        }
+
+        buttonDelivered?.setOnClickListener{  }
+        imageViewPhone?.setOnClickListener {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CALL_PHONE), REQUEST_PHONE_CALL)
+            } else {
+              call()
+            }
+        }
     }
 
-    private fun goToCreateAddress(){
-        val i = Intent()
-        i.putExtra("city", city)
-        i.putExtra("address", address)
-        i.putExtra("country", country)
-        i.putExtra("lat", addresLatLong?.latitude)
-        i.putExtra("lng", addresLatLong?.longitude)
-        setResult(RESULT_OK, i)
-        finish() // Volver hacia atras
+    private fun call(){
+        val i = Intent(Intent.ACTION_CALL)
+        i.data = Uri.parse("tel:${order?.client?.phone}")
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(this, "Permiso denegado para realizar la llamada", Toast.LENGTH_SHORT).show()
+            return
+        }
+        startActivity(i)
     }
 
     private fun removeDeliveryMarker() {
@@ -123,7 +161,7 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         removeDeliveryMarker()
         markerDelivery = googleMap?.addMarker(
             MarkerOptions()
-                .position(myLocationLatLong)
+                .position(myLocationLatLong!!)
                 .title("Mi posicion")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.delivery))
         )
@@ -168,6 +206,7 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
                     removeDeliveryMarker()
                     addDeliveryMarker()
                     addAddressMarker()
+                    drawRouteUsingSDK()
                     // Verifica si 'order' y 'order.address' no son null
                     if (order?.address != null) {
                         addAddressMarker() // Agrega el marcador para la dirección
@@ -256,10 +295,48 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
                 Toast.makeText(this, "Permiso denegado", Toast.LENGTH_SHORT).show()
             }
         }
+
+        if (requestCode == REQUEST_PHONE_CALL) {
+            call()
+        }
+
     }
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         googleMap?.uiSettings?.isZoomControlsEnabled = true
     }
+
+    private fun drawRouteUsingSDK() {
+        val addressLocation = LatLng(order?.address?.lat!!, order?.address?.lng!!)
+        // Inicializa el SDK con tu clave de API
+        val drawRouteSDK: DrawRouteSDK = DrawRouteSDKImpl(R.string.google_map_api_key.toString())
+
+        // Dibuja la ruta en el mapa utilizando el SDK
+        googleMap?.let { map ->
+            drawRouteSDK.drawRoute(
+                googleMap = map,
+                source = myLocationLatLong!!,
+                destination = addressLocation,
+                context = this, // Cambiar si estás en un Fragment
+                color = ContextCompat.getColor(this, R.color.teal_700), // Cambia al color que prefieras
+                showMarkers = false, // Opcional: muestra marcadores en origen y destino
+                boundMarkers = false, // Ajusta automáticamente la cámara para incluir los marcadores
+                polygonWidth = 10, // Opcional: ajusta el ancho de la línea
+                estimates = { leg ->
+                    // Maneja las estimaciones (distancia y tiempo)
+                    Toast.makeText(
+                        this,
+                        "ETA: ${leg.duration?.text}, Distance: ${leg.distance?.text}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                },
+                error = { throwable ->
+                    // Maneja errores
+                    Toast.makeText(this, "Error: ${throwable.message}", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
+    }
+
 }

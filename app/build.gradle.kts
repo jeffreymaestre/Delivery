@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.kotlin.appdelivery"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -58,6 +58,7 @@ dependencies {
         exclude (group = "com.android.support")
     }
     implementation ("com.github.denzcoskun:ImageSlideshow:0.1.2")
+    implementation("com.github.malikdawar:drawroute:2.3")
 
     implementation ("com.google.maps.android:maps-ktx:3.2.0")
     implementation ("com.google.maps.android:maps-utils-ktx:3.2.0")

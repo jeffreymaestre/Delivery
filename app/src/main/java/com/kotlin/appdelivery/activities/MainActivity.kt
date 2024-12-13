@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
                 else if (rol == "CLIENTE"){
                     goToClientHome()
                 }
-                else if (rol == "DELIVERY"){
+                else if (rol == "REPARTIDOR"){
                     goToDeliveryHome()
                 }
             }
