@@ -58,11 +58,11 @@ interface OrdersRoutes {
     fun updateToOnTheWay(
         @Body order: Order,
         @Header("Authorization") token: String
-    ): Call<ResponseHttp> /*
+    ): Call<ResponseHttp>
 
-    @POST("orders/create")
-    fun create(
+    @PUT("orders/updateToDelivery")
+    fun updateToDelivery(
         @Body order: Order,
         @Header("Authorization") token: String
-    ): Call<ResponseHttp>*/
+    ): Call<ResponseHttp>
 }

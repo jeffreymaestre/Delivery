@@ -1,7 +1,10 @@
 package com.kotlin.appdelivery.activities.client.orders.detail
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.kotlin.appdelivery.R
+import com.kotlin.appdelivery.activities.client.orders.map.ClientOrdersMapActivity
+import com.kotlin.appdelivery.activities.delivery.orders.map.DeliveryOrdersMapActivity
 import com.kotlin.appdelivery.adapters.OrderProductsAdapter
 import com.kotlin.appdelivery.adapters.OrdersClientAdapter
 import com.kotlin.appdelivery.models.Order
@@ -31,6 +36,7 @@ class ClientOrdersDetailActivity : AppCompatActivity() {
     var texViewTotal: TextView? = null
     var texViewStatus: TextView? = null
     var recyclerViewProducts: RecyclerView? = null
+    var buttonGoToMap: Button? = null
 
     var adapter: OrderProductsAdapter? = null
 
@@ -55,6 +61,7 @@ class ClientOrdersDetailActivity : AppCompatActivity() {
         texViewData = findViewById(R.id.textview_date)
         texViewTotal = findViewById(R.id.textview_total)
         texViewStatus = findViewById(R.id.textview_status)
+        buttonGoToMap = findViewById(R.id.btn_go_to_map)
 
         recyclerViewProducts = findViewById(R.id.recyclerview_products)
         recyclerViewProducts?.layoutManager = LinearLayoutManager(this)
@@ -70,6 +77,18 @@ class ClientOrdersDetailActivity : AppCompatActivity() {
         Log.d(TAG, "Orden: ${order.toString()}")
 
         getTotal()
+
+        if (order?.status == "EN CAMINO"){
+            buttonGoToMap?.visibility = View.VISIBLE
+        }
+
+        buttonGoToMap?.setOnClickListener{ goToMap() }
+    }
+
+    private fun goToMap() {
+        val i = Intent(this, ClientOrdersMapActivity::class.java)
+        i.putExtra("order", order?.toJson())
+        startActivity(i)
     }
 
     private fun getTotal(){

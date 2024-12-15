@@ -1,4 +1,4 @@
-package com.kotlin.appdelivery.activities.delivery.orders.map
+package com.kotlin.appdelivery.activities.client.orders.map
 
 import android.Manifest
 import android.content.Context
@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -59,9 +60,9 @@ import java.io.IOException
 import java.net.URI.create
 
 
-class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
+class ClientOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    val TAG = "DeliveryOrdersMap"
+    val TAG = "ClientOrdersMap"
     var googleMap: GoogleMap? = null
 
     val PERMISSION_ID = 97
@@ -93,16 +94,10 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
     var user: User? = null
     var sharePref : SharePref? = null
 
-    var distanceBetween = 0.0f
-
     private val locationCallback = object: LocationCallback(){
         override fun onLocationResult(locationResult: LocationResult) {
             var lastLocation = locationResult.lastLocation
             myLocationLatLong = LatLng(lastLocation!!.latitude, lastLocation.longitude)
-
-            distanceBetween = getDistanceBetween(myLocationLatLong!!, addresLatLong!!)
-
-            Log.d(TAG, "Distancia: $distanceBetween")
 
             removeDeliveryMarker()
             addDeliveryMarker()
@@ -115,7 +110,7 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_delivery_orders_map)
+        setContentView(R.layout.activity_client_orders_map)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -140,11 +135,10 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         textViewNeighborhood = findViewById(R.id.textview_neighborhood)
         circleImageUser = findViewById(R.id.circleimage_user)
         imageViewPhone = findViewById(R.id.imageview_phone)
-        buttonDelivered = findViewById(R.id.btn_delivered)
 
         getLastLocation()
 
-        textViewClient?.text = "${order?.client?.name} ${order?.client?.lastname}"
+        textViewClient?.text = "${order?.delivery?.name} ${order?.delivery?.lastname}"
         textViewAddress?.text = order?.address?.address
         textViewNeighborhood?.text = order?.address?.neighborhood
 
@@ -152,21 +146,15 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
             Glide.with(this).load(order?.client?.image).into(circleImageUser!!)
         }
 
-        buttonDelivered?.setOnClickListener{
-            if (distanceBetween <= 350){
-                updateOrder()
-            } else {
-                Toast.makeText(this, "Debes estar mas cerca al punto de entrega", Toast.LENGTH_SHORT).show()
-            }
-        }
         imageViewPhone?.setOnClickListener {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED){
                 ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CALL_PHONE), REQUEST_PHONE_CALL)
             } else {
-              call()
+                call()
             }
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -181,24 +169,6 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         startActivity(i)
     }
 
-    private fun updateOrder(){
-        ordersProvider?.updateToDelivery(order!!)?.enqueue(object: Callback<ResponseHttp>{
-            override fun onResponse(call: Call<ResponseHttp>, response: Response<ResponseHttp>) {
-                if(response.body() != null){
-                    Toast.makeText(this@DeliveryOrdersMapActivity, "${response.body()?.message}", Toast.LENGTH_SHORT).show()
-                    if (response.body()?.isSuccess == true){
-                        goToHome()
-                    }
-
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
-                Toast.makeText(this@DeliveryOrdersMapActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
-
     private fun getUserFromSession(){
         val gson = Gson()
 
@@ -208,25 +178,9 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun getDistanceBetween(fromLatLng: LatLng, toLatLng: LatLng): Float{
-        var distance = 0.0f
-        var from = Location("")
-        var to = Location("")
-
-        from.latitude = fromLatLng.latitude
-        from.longitude = fromLatLng.longitude
-        to.latitude = toLatLng.latitude
-        to.longitude = toLatLng.longitude
-
-        distance = from.distanceTo(to)
-
-        return distance
-
-    }
-
     private fun call(){
         val i = Intent(Intent.ACTION_CALL)
-        i.data = Uri.parse("tel:${order?.client?.phone}")
+        i.data = Uri.parse("tel:${order?.delivery?.phone}")
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED){
             Toast.makeText(this, "Permiso denegado para realizar la llamada", Toast.LENGTH_SHORT).show()
             return
@@ -256,7 +210,7 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun addAddressMarker(){
-       val addressLocation = LatLng(order?.address?.lat!!, order?.address?.lng!!)
+        val addressLocation = LatLng(order?.address?.lat!!, order?.address?.lng!!)
         markerAddress = googleMap?.addMarker(
             MarkerOptions()
                 .position(addressLocation)
@@ -283,9 +237,6 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 removeDeliveryMarker()
-
-                // Obtener la última ubicación si ya tenemos los permisos
-                requestNewLocationData()
 
                 fusedLocationClient?.lastLocation?.addOnCompleteListener { task ->
                     val location = task.result

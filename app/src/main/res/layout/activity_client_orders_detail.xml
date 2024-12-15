@@ -145,6 +145,18 @@
 
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btn_go_to_map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rastrear pedido"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
+            android:visibility="gone"
+            android:background="@drawable/rounted_button"
+            />
+
         
     </LinearLayout>
 
