@@ -265,6 +265,23 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+    private fun updateLatLng(lat: Double, lng: Double){
+        order?.lat = lat
+        order?.lng = lng
+
+        ordersProvider?.updateLatLng(order!!)?.enqueue(object: Callback<ResponseHttp>{
+            override fun onResponse(call: Call<ResponseHttp>, response: Response<ResponseHttp>) {
+                if(response.body() != null){
+                    //Toast.makeText(this@DeliveryOrdersMapActivity, "${response.body()?.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+
+            override fun onFailure(call: Call<ResponseHttp>, t: Throwable) {
+                Toast.makeText(this@DeliveryOrdersMapActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
     private fun getLastLocation() {
         if (checkPermision()) {
             if (isLocationEnabled()) {
@@ -288,25 +305,29 @@ class DeliveryOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
                 requestNewLocationData()
 
                 fusedLocationClient?.lastLocation?.addOnCompleteListener { task ->
-                    val location = task.result
-                    myLocationLatLong = LatLng(location.latitude, location.longitude)
+                    var location = task.result
+                    if(location != null){
+                        myLocationLatLong = LatLng(location.latitude, location.longitude)
 
-                    removeDeliveryMarker()
-                    addDeliveryMarker()
-                    addAddressMarker()
-                    drawRouteUsingSDK()
-                    // Verifica si 'order' y 'order.address' no son null
-                    if (order?.address != null) {
-                        addAddressMarker() // Agrega el marcador para la dirección
-                    }
+                        updateLatLng(location.latitude, location.longitude)
 
-                    googleMap?.moveCamera(
-                        CameraUpdateFactory.newCameraPosition(
-                            CameraPosition.builder().target(
-                                LatLng(location.latitude, location.longitude)
-                            ).zoom(15f).build()
+                        removeDeliveryMarker()
+                        addDeliveryMarker()
+                        addAddressMarker()
+                        drawRouteUsingSDK()
+                        // Verifica si 'order' y 'order.address' no son null
+                        if (order?.address != null) {
+                            addAddressMarker() // Agrega el marcador para la dirección
+                        }
+
+                        googleMap?.moveCamera(
+                            CameraUpdateFactory.newCameraPosition(
+                                CameraPosition.builder().target(
+                                    LatLng(location.latitude, location.longitude)
+                                ).zoom(15f).build()
+                            )
                         )
-                    )
+                    }
                 }
             } else {
                 Toast.makeText(this, "Habilita la localización", Toast.LENGTH_SHORT).show()

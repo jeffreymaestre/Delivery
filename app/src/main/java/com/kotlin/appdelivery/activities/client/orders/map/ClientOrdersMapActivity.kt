@@ -76,6 +76,7 @@ class ClientOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
     var markerDelivery: Marker? = null
     var markerAddress: Marker? = null
     var myLocationLatLong: LatLng? = null
+    var deliveryLatLong: LatLng? = null
 
     var order: Order? = null
     val gson = Gson()
@@ -121,7 +122,10 @@ class ClientOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
         getUserFromSession()
 
-        order = gson?.fromJson(intent.getStringExtra("order"), Order::class.java)
+        order = gson.fromJson(intent.getStringExtra("order"), Order::class.java)
+        if (order?.lat != null && order?.lng != null){
+            deliveryLatLong = LatLng(order?.lat!!, order?.lng!!)
+        }
         ordersProvider = OrdersProvider(user?.sessionToken!!)
         addresLatLong = LatLng(order?.address?.lat!!, order?.address?.lng!!)
 
@@ -200,13 +204,16 @@ class ClientOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     private fun addDeliveryMarker(){
-        removeDeliveryMarker()
-        markerDelivery = googleMap?.addMarker(
-            MarkerOptions()
-                .position(myLocationLatLong!!)
-                .title("Mi posicion")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.delivery))
-        )
+        if(deliveryLatLong != null){
+            removeDeliveryMarker()
+            markerDelivery = googleMap?.addMarker(
+                MarkerOptions()
+                    .position(deliveryLatLong!!)
+                    .title("Posición del repartidor")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.delivery))
+            )
+        }
+
     }
 
     private fun addAddressMarker(){
@@ -239,25 +246,30 @@ class ClientOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
                 removeDeliveryMarker()
 
                 fusedLocationClient?.lastLocation?.addOnCompleteListener { task ->
-                    val location = task.result
-                    myLocationLatLong = LatLng(location.latitude, location.longitude)
+                    var location = task.result
+                    if (location !=null){
+                        myLocationLatLong = LatLng(location.latitude, location.longitude)
 
-                    removeDeliveryMarker()
-                    addDeliveryMarker()
-                    addAddressMarker()
-                    drawRouteUsingSDK()
-                    // Verifica si 'order' y 'order.address' no son null
-                    if (order?.address != null) {
-                        addAddressMarker() // Agrega el marcador para la dirección
+                        removeDeliveryMarker()
+                        addDeliveryMarker()
+                        addAddressMarker()
+                        drawRouteUsingSDK()
+                        // Verifica si 'order' y 'order.address' no son null
+                        if (order?.address != null) {
+                            addAddressMarker() // Agrega el marcador para la dirección
+                        }
+
+                        if (deliveryLatLong != null){
+                            googleMap?.moveCamera(
+                                CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition.builder().target(
+                                        LatLng(deliveryLatLong?.latitude!!, deliveryLatLong?.longitude!!)
+                                    ).zoom(15f).build()
+                                )
+                            )
+                        }
                     }
 
-                    googleMap?.moveCamera(
-                        CameraUpdateFactory.newCameraPosition(
-                            CameraPosition.builder().target(
-                                LatLng(location.latitude, location.longitude)
-                            ).zoom(15f).build()
-                        )
-                    )
                 }
             } else {
                 Toast.makeText(this, "Habilita la localización", Toast.LENGTH_SHORT).show()
@@ -347,34 +359,36 @@ class ClientOrdersMapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun drawRouteUsingSDK() {
-        val addressLocation = LatLng(order?.address?.lat!!, order?.address?.lng!!)
-        // Inicializa el SDK con tu clave de API
-        val drawRouteSDK: DrawRouteSDK = DrawRouteSDKImpl(R.string.google_map_api_key.toString())
+        if(deliveryLatLong != null){
+            val addressLocation = LatLng(order?.address?.lat!!, order?.address?.lng!!)
+            // Inicializa el SDK con tu clave de API
+            val drawRouteSDK: DrawRouteSDK = DrawRouteSDKImpl(R.string.google_map_api_key.toString())
 
-        // Dibuja la ruta en el mapa utilizando el SDK
-        googleMap?.let { map ->
-            drawRouteSDK.drawRoute(
-                googleMap = map,
-                source = myLocationLatLong!!,
-                destination = addressLocation,
-                context = this, // Cambiar si estás en un Fragment
-                color = ContextCompat.getColor(this, R.color.teal_700), // Cambia al color que prefieras
-                showMarkers = false, // Opcional: muestra marcadores en origen y destino
-                boundMarkers = false, // Ajusta automáticamente la cámara para incluir los marcadores
-                polygonWidth = 10, // Opcional: ajusta el ancho de la línea
-                estimates = { leg ->
-                    // Maneja las estimaciones (distancia y tiempo)
-                    Toast.makeText(
-                        this,
-                        "ETA: ${leg.duration?.text}, Distance: ${leg.distance?.text}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                },
-                error = { throwable ->
-                    // Maneja errores
-                    Toast.makeText(this, "Error: ${throwable.message}", Toast.LENGTH_SHORT).show()
-                }
-            )
+            // Dibuja la ruta en el mapa utilizando el SDK
+            googleMap?.let { map ->
+                drawRouteSDK.drawRoute(
+                    googleMap = map,
+                    source = deliveryLatLong!!,
+                    destination = addressLocation,
+                    context = this, // Cambiar si estás en un Fragment
+                    color = ContextCompat.getColor(this, R.color.teal_700), // Cambia al color que prefieras
+                    showMarkers = false, // Opcional: muestra marcadores en origen y destino
+                    boundMarkers = false, // Ajusta automáticamente la cámara para incluir los marcadores
+                    polygonWidth = 10, // Opcional: ajusta el ancho de la línea
+                    estimates = { leg ->
+                        // Maneja las estimaciones (distancia y tiempo)
+                        Toast.makeText(
+                            this,
+                            "ETA: ${leg.duration?.text}, Distance: ${leg.distance?.text}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    },
+                    error = { throwable ->
+                        // Maneja errores
+                        Toast.makeText(this, "Error: ${throwable.message}", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
         }
     }
 

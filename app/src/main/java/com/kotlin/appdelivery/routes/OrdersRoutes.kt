@@ -65,4 +65,10 @@ interface OrdersRoutes {
         @Body order: Order,
         @Header("Authorization") token: String
     ): Call<ResponseHttp>
+
+    @PUT("orders/updateLatLng")
+    fun updateLatLng(
+        @Body order: Order,
+        @Header("Authorization") token: String
+    ): Call<ResponseHttp>
 }
