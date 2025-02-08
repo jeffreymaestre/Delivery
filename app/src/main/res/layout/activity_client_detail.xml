@@ -27,7 +27,8 @@
             android:layout_height="wrap_content"
             android:text="Nombre del producto"
             android:textSize="20sp"
-            android:textColor="@color/black"
+            android:textColor="@color/blue"
+            android:textStyle="bold"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
             android:layout_marginTop="15dp"/>
@@ -48,6 +49,7 @@
             android:layout_height="wrap_content"
             android:text="Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen."
             android:textSize="16sp"
+            android:textColor="@color/gray_button"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
             android:maxLength="255"
@@ -79,6 +81,7 @@
             android:layout_height="wrap_content"
             android:text="1"
             android:textStyle="bold"
+            android:textColor="@color/blue"
             android:textSize="18sp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"/>
@@ -98,6 +101,7 @@
             android:text="0$"
             android:textStyle="bold"
             android:textSize="18sp"
+            android:textColor="@color/blue"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"/>
 
@@ -108,6 +112,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Agregar producto"
+        android:textColor="@color/white"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"

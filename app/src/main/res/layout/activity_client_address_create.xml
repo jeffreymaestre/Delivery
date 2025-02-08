@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             android:text="Completa estos datos"
             android:textSize="17sp"
+            android:textColor="@color/gray_button"
             android:layout_marginRight="25dp"
             android:layout_marginLeft="25dp"
             android:layout_marginTop="25dp"/>
@@ -70,6 +71,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Crear direccion"
+        android:textColor="@color/white"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:background="@drawable/rounted_button"

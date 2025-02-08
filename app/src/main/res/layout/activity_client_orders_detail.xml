@@ -24,7 +24,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/gray"
+            android:background="@color/blue"
             android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"/>
@@ -41,13 +41,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cliente: "
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/textview_client"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nombre del cliente"/>
+                android:text="Nombre del cliente"
+                android:textColor="@color/gray_button"/>
 
         </LinearLayout>
 
@@ -63,13 +65,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Entregar en: "
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/textview_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Direccion de entrega"/>
+                android:text="Direccion de entrega"
+                android:textColor="@color/gray_button"/>
 
         </LinearLayout>
 
@@ -85,13 +89,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Fecha del pedido: "
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/textview_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00:00:00"/>
+                android:text="00:00:00"
+                android:textColor="@color/gray_button"/>
 
         </LinearLayout>
 
@@ -107,13 +113,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Estado del pedido: "
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
 
             <TextView
                 android:id="@+id/textview_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Estado"/>
+                android:text="Estado"
+                android:textColor="@color/gray_button"/>
 
         </LinearLayout>
 

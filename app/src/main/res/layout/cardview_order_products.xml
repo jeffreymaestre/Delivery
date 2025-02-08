@@ -46,6 +46,7 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:layout_marginLeft="5dp"
+                android:textColor="@color/gray_button"
                 />
 
             <TextView
@@ -56,7 +57,8 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"/>
+                android:layout_marginRight="5dp"
+                android:textColor="@color/gray_button"/>
 
 
         </LinearLayout>

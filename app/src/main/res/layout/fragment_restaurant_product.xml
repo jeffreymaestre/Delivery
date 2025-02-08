@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="Nombre del producto"
+            android:textColorHint="@color/gray_button"
             android:background="@drawable/edit_text_custom"
             android:layout_marginTop="50dp"
             android:layout_marginLeft="20dp"
@@ -28,6 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="Descripcion del producto"
+            android:textColorHint="@color/gray_button"
             android:background="@drawable/edit_text_custom"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
@@ -40,6 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="Precio del producto"
+            android:textColorHint="@color/gray_button"
             android:background="@drawable/edit_text_custom"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="20dp"
@@ -87,7 +90,8 @@
             android:id="@+id/spinner_categories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"/>
+            android:layout_margin="20dp"
+            android:backgroundTint="@color/blue"/>
 
     </LinearLayout>
 

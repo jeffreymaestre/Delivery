@@ -20,7 +20,7 @@
             app:civ_border_width="5dp"
             android:layout_gravity="center"
             android:layout_marginTop="60dp"
-            app:civ_border_color="@color/gray"/>
+            app:civ_border_color="@color/blue"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -40,6 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nombre de usuario"
+                android:textColor="@color/gray_button"
                 android:layout_marginLeft="10dp"/>
         </LinearLayout>
 
@@ -61,6 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Email de usuario"
+                android:textColor="@color/gray_button"
                 android:layout_marginLeft="10dp"/>
         </LinearLayout>
 
@@ -82,6 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="+5700000000"
+                android:textColor="@color/gray_button"
                 android:layout_marginLeft="10dp"/>
         </LinearLayout>
 
@@ -103,8 +106,8 @@
             android:layout_gravity="center"
             android:text="SELECCIONAR ROL"
             android:background="@drawable/rounted_button"
-            app:backgroundTint="@color/gray"
-            android:textColor="@color/black"
+            app:backgroundTint="@color/gray_button"
+            android:textColor="@color/white"
             />
 
         <Button
@@ -113,6 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="EDITAR PERFIL"
+            android:textColor="@color/white"
             android:background="@drawable/rounted_button"
             android:layout_marginBottom="15dp"
             android:layout_marginTop="10dp"/>

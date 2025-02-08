@@ -40,7 +40,7 @@
         android:layout_height="150dp"
         android:src="@drawable/ic_person"
         android:layout_marginTop="110dp"
-        app:civ_border_color="@color/gray"
+        app:civ_border_color="@color/blue"
         app:civ_border_width="5dp"
         app:civ_circle_background_color="@color/white"
         android:layout_gravity="center|top"/>
@@ -56,6 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="CONFIRMAR"
+            android:textColor="@color/white"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:background="@drawable/rounted_button"
@@ -66,11 +67,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Saltar este paso"
+            android:textColor="@color/white"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="20dp"
             android:layout_marginTop="10dp"
-            app:backgroundTint="@color/gray"
+            app:backgroundTint="@color/gray_button"
             android:background="@drawable/rounted_button"
             />
 

@@ -41,6 +41,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Barrio"
+                    android:textColor="@color/gray_button"
                     />
 
                 <TextView
@@ -80,6 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Direccion"
+                    android:textColor="@color/gray_button"
                     />
 
                 <TextView
@@ -104,7 +106,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/gray"
+            android:background="@color/blue"
             android:layout_marginRight="30dp"
             android:layout_marginLeft="30dp"
             android:layout_marginTop="20dp"
@@ -136,7 +138,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Repartidor" />
+                    android:text="Repartidor"
+                    android:textColor="@color/gray_button"/>
 
                 <TextView
                     android:id="@+id/textview_client"
