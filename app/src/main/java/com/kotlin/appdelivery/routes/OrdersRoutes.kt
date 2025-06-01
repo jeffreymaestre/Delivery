@@ -71,4 +71,9 @@ interface OrdersRoutes {
         @Body order: Order,
         @Header("Authorization") token: String
     ): Call<ResponseHttp>
+
+    @GET("orders/getAll")
+    fun getTotalDay(
+        @Header("Authorization") token: String
+    ): Call<ResponseHttp>
 }

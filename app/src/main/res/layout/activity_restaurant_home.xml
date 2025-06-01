@@ -24,6 +24,16 @@
 
     </FrameLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/total_day_restaurant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add_simple"
+        android:backgroundTint="@color/green"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="100dp"
+        android:layout_marginRight="25dp"/>
+
     <!--<Button
         android:id="@+id/btn_logout"
         android:layout_width="wrap_content"

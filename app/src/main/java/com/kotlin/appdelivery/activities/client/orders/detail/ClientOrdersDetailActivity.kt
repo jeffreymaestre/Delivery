@@ -51,7 +51,7 @@ class ClientOrdersDetailActivity : AppCompatActivity() {
         }
         order = gson.fromJson(intent.getStringExtra("order"), Order::class.java)
         toolbar = findViewById(R.id.toolbar)
-        toolbar?.setTitleTextColor(ContextCompat.getColor(this, R.color.black))
+        toolbar?.setTitleTextColor(ContextCompat.getColor(this, R.color.white))
         toolbar?.title = "Order #${order?.id}"
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

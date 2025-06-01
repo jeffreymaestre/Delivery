@@ -83,7 +83,7 @@ class DeliveryOrdersDetailActivity : AppCompatActivity() {
         ordersProvider = OrdersProvider(user?.sessionToken!!)
 
         toolbar = findViewById(R.id.toolbar)
-        toolbar?.setTitleTextColor(ContextCompat.getColor(this, R.color.black))
+        toolbar?.setTitleTextColor(ContextCompat.getColor(this, R.color.white))
         toolbar?.title = "Order #${order?.id}"
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

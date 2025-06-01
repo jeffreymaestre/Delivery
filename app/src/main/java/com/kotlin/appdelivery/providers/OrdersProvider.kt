@@ -57,4 +57,8 @@ class OrdersProvider(val token: String) {
         return ordersRoutes?.updateLatLng(order, token)
 
     }
+
+    fun getTotalDay(): Call<ResponseHttp>? {
+        return ordersRoutes?.getTotalDay(token)
+    }
 }

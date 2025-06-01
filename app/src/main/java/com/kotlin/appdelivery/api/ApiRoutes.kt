@@ -7,7 +7,9 @@ import com.kotlin.appdelivery.routes.ProductsRoutes
 import com.kotlin.appdelivery.routes.UsersRoutes
 
 class ApiRoutes {
-    val API_URL = "http://192.168.1.6:3000/api/"
+    //val API_URL = "http://192.168.56.1:3000/api/"
+    val API_URL = "http://86.48.24.183:3000/api/" //SERVER LINUX
+    //val API_URL = "https://app-delivery-1b69a60ed081.herokuapp.com/api/"
     val retrofit = RetrofitClient()
 
     fun getUsersRoutes(): UsersRoutes{
