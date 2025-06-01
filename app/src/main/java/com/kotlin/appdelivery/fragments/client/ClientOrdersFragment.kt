@@ -32,10 +32,10 @@ class ClientOrdersFragment : Fragment() {
       tabLayout?.setSelectedTabIndicatorColor(Color.BLACK)
       tabLayout?.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
       tabLayout?.tabTextColors = ContextCompat.getColorStateList(requireContext(), R.color.black)
-      /*tabLayout?.tabMode = TabLayout.MODE_SCROLLABLE
-      tabLayout?.isInlineLabel = true*/
+      tabLayout?.tabMode = TabLayout.MODE_SCROLLABLE
+      tabLayout?.isInlineLabel = true
 
-      var numberOfTabs = 1
+      var numberOfTabs = 4
 
       val adapter = TabsPagerAdapter(requireActivity().supportFragmentManager, lifecycle, numberOfTabs)
       viewPager?.adapter = adapter
@@ -45,6 +45,15 @@ class ClientOrdersFragment : Fragment() {
           when(position){
               0 -> {
                   tab.text = "PAGADO"
+              }
+              1 -> {
+                  tab.text = "DESPACHADO"
+              }
+              2 -> {
+                  tab.text = "EN CAMINO"
+              }
+              3 -> {
+                  tab.text = "ENTREGADO"
               }
           }
       }.attach()

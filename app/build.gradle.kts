@@ -8,7 +8,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.kotlin.appdelivery"
+        applicationId = "com.kotlin.ecommerce.demo"
         minSdk = 23
         targetSdk = 34
         versionCode = 1
